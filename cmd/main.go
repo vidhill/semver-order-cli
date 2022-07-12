@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -27,7 +26,7 @@ func main() {
 		return
 	}
 
-	vs, err := parseVersions(raw)
+	vs, invalid, err := parseVersions(raw)
 
 	if err != nil {
 		logger.Infof("Error: %v\n", err)
@@ -37,7 +36,12 @@ func main() {
 
 	sort.Sort(semver.Collection(vs))
 
-	json := convertToJSON(vs)
+	ordered := getOriginalNames(vs)
+
+	// append the invalid tag names to the end
+	ordered = append(ordered, invalid...)
+
+	json := convertToJSON(ordered)
 
 	logger.Info(json)
 
@@ -58,24 +62,24 @@ func parseStdinJSON() ([]string, error) {
 	}
 }
 
-func parseVersions(s []string) ([]*semver.Version, error) {
+func parseVersions(s []string) ([]*semver.Version, []string, error) {
 
-	vs := make([]*semver.Version, len(s))
-	for i, r := range s {
+	vs := []*semver.Version{}
+	invalid := []string{}
+	for _, r := range s {
 		v, err := semver.NewVersion(r)
 		if err != nil {
-			errMsg := fmt.Sprintf(`the string "%s" is not a valid Semantic version`, r)
-			return vs, errors.New(errMsg)
+			invalid = append(invalid, r)
+		} else {
+			vs = append(vs, v)
 		}
-
-		vs[i] = v
 	}
 
-	return vs, nil
+	return vs, invalid, nil
 }
 
 // return ordered as original values as slice of string
-func convertToJSON(vs []*semver.Version) string {
+func getOriginalNames(vs []*semver.Version) []string {
 
 	s := make([]string, len(vs))
 
@@ -83,6 +87,10 @@ func convertToJSON(vs []*semver.Version) string {
 		s[i] = v.Original()
 	}
 
+	return s
+}
+
+func convertToJSON(s []string) string {
 	b, _ := json.MarshalIndent(s, "", "\t")
 
 	return string(b)
