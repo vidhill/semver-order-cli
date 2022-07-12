@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -23,7 +24,7 @@ func main() {
 	vs, err := parseVersions(raw)
 
 	if err != nil {
-		log.Fatalf("one item was an invalid version number:\n\t%s", err)
+		log.Fatalf("Error: %v", err)
 	}
 
 	sort.Sort(semver.Collection(vs))
@@ -55,7 +56,8 @@ func parseVersions(s []string) ([]*semver.Version, error) {
 	for i, r := range s {
 		v, err := semver.NewVersion(r)
 		if err != nil {
-			return vs, NewMyError(`the string "%s" is not a valid Semantic version`, r, err)
+			errMsg := fmt.Sprintf(`the string "%s" is not a valid Semantic version`, r)
+			return vs, errors.New(errMsg)
 		}
 
 		vs[i] = v
@@ -76,24 +78,4 @@ func convertToJSON(vs []*semver.Version) string {
 	b, _ := json.MarshalIndent(s, "", "\t")
 
 	return string(b)
-}
-
-type MyErr struct {
-	msg string
-	err error
-}
-
-func (e MyErr) Error() string {
-	return fmt.Sprintf("%v, %s", e.err, e.msg)
-}
-
-func (e MyErr) Unwrap() error {
-	return e.err
-}
-
-func NewMyError(s, input string, e error) MyErr {
-	return MyErr{
-		msg: fmt.Sprintf(s, input),
-		err: e,
-	}
 }
