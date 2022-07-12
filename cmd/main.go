@@ -5,33 +5,36 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"sort"
 
 	"github.com/Masterminds/semver"
 )
 
+var logger = DefaultLogger{}
+
 func main() {
 
 	raw, err := parseStdinJSON()
 
 	if err != nil {
-		log.Println("input is not the expect structure, input should be a JSON array of strings")
+		logger.Info("The input is not in the expect structure, input should be a JSON array of strings")
 		return
 	}
 
 	vs, err := parseVersions(raw)
 
 	if err != nil {
-		log.Fatalf("Error: %v", err)
+		logger.Infof("Error: %v\n", err)
+		os.Exit(2)
+		return
 	}
 
 	sort.Sort(semver.Collection(vs))
 
 	json := convertToJSON(vs)
 
-	fmt.Println(json)
+	logger.Info(json)
 
 }
 
@@ -78,4 +81,19 @@ func convertToJSON(vs []*semver.Version) string {
 	b, _ := json.MarshalIndent(s, "", "\t")
 
 	return string(b)
+}
+
+type Logger interface {
+	Info(...interface{})
+	Infof(string, ...interface{})
+}
+
+type DefaultLogger struct{}
+
+func (l DefaultLogger) Info(v ...interface{}) {
+	fmt.Println(v...)
+}
+
+func (l DefaultLogger) Infof(s string, v ...interface{}) {
+	fmt.Printf(s, v...)
 }
