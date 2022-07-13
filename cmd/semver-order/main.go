@@ -19,7 +19,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	raw, err := parseStdinJSON()
+	raw, err := parseStdinJSON(os.Stdin)
 
 	if err != nil {
 		logger.Info("The input is not in the expect structure, input should be a JSON array of strings")
@@ -47,10 +47,10 @@ func main() {
 
 }
 
-func parseStdinJSON() ([]string, error) {
+func parseStdinJSON(r io.Reader) ([]string, error) {
 	record := []string{}
 
-	dec := json.NewDecoder(os.Stdin)
+	dec := json.NewDecoder(r)
 	for {
 		err := dec.Decode(&record)
 		if err == io.EOF {
