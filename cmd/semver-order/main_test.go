@@ -33,3 +33,24 @@ func TestParseStdinJSON(t *testing.T) {
 	})
 
 }
+
+func TestParseVersions(t *testing.T) {
+	t.Run("happy path", func(t *testing.T) {
+		s := []string{"v1.0.0", "v1.0.1"}
+		vs, sl, err := parseVersions(s)
+
+		assert.Nil(t, err)
+		assert.Len(t, vs, 2)
+		assert.Len(t, sl, 0)
+	})
+
+	t.Run("happy path 1", func(t *testing.T) {
+		s := []string{"v1.0.0", "v1.0.1", "latest"}
+		vs, sl, err := parseVersions(s)
+
+		assert.Nil(t, err)
+		assert.Len(t, vs, 2)
+		assert.Len(t, sl, 1)
+	})
+
+}
