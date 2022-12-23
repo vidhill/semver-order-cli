@@ -1,10 +1,10 @@
 # todo add check to verify sbot is installed
 
 build:
-	go build -o semverbot cmd/semver-order/main.go
+	go build -o semver-order cmd/semver-order/main.go
 
 clean:
-	rm -rf semverbot
+	rm -rf semver-order
 
 test:
 	go test ./...

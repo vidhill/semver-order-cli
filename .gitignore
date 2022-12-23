@@ -5,9 +5,6 @@
 *.so
 *.dylib
 
-# binary
-semverbot
-
 # Test binary, built with `go test -c`
 *.test
 
@@ -20,5 +17,6 @@ semverbot
 .DS_Store
 
 dist/
+# binary
 main
 semver-order
