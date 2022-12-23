@@ -1,10 +1,12 @@
+BINARY_NAME=semver-order
+
 # todo add check to verify sbot is installed
 
 build:
-	go build -o semver-order cmd/semver-order/main.go
+	go build -o $(BINARY_NAME) cmd/semver-order/main.go
 
 clean:
-	rm -rf semver-order
+	rm -rf $(BINARY_NAME)
 
 test:
 	go test ./...
