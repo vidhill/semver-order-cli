@@ -14,7 +14,7 @@ var logger = DefaultLogger{}
 
 func main() {
 
-	if checkIfEmptyStdin() {
+	if checkIfEmptyStdin(os.Stdin) {
 		logger.Info("Empty input")
 		os.Exit(2)
 	}
@@ -96,13 +96,11 @@ func convertToJSON(s []string) string {
 	return string(b)
 }
 
-func checkIfEmptyStdin() bool {
-	stat, _ := os.Stdin.Stat()
-	if (stat.Mode() & os.ModeCharDevice) == 0 {
-		return false
-	} else {
-		return true
-	}
+func checkIfEmptyStdin(f *os.File) bool {
+	stat, _ := f.Stat()
+	emptyInput := (stat.Mode() & os.ModeCharDevice) == 0
+
+	return !emptyInput
 }
 
 type Logger interface {

@@ -28,6 +28,13 @@ changelog:
       - '^docs:'
       - '^test:'
 
+brews:
+- name: semver-order
+  homepage: https://github.com/vidhill/homebrew-tools 
+  tap:
+    owner: vidhill
+    name: homebrew-tools
+
 # modelines, feel free to remove those if you don't want/use them:
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 # vim: set ts=2 sw=2 tw=0 fo=cnqoj
