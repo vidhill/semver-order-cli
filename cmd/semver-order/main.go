@@ -41,7 +41,7 @@ func main() {
 	// append the invalid tag names to the end
 	ordered = append(ordered, invalid...)
 
-	json := convertToJSON(ordered)
+	json := convertToJSON(ordered, true)
 
 	logger.Info(json)
 
@@ -83,10 +83,18 @@ func getOriginalNames(vs []*semver.Version) []string {
 	return s
 }
 
-func convertToJSON(s []string) string {
-	b, _ := json.MarshalIndent(s, "", "\t")
-
+func convertToJSON(s []string, pretty bool) string {
+	b := marshallIgnoreError(s, pretty)
 	return string(b)
+}
+
+func marshallIgnoreError(i interface{}, pretty bool) []byte {
+	if pretty {
+		b, _ := json.MarshalIndent(i, "", "\t")
+		return b
+	}
+	b, _ := json.Marshal(i)
+	return b
 }
 
 func checkIfEmptyStdin(f *os.File) bool {
