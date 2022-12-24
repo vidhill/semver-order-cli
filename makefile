@@ -1,3 +1,5 @@
+SHELL := /bin/bash # mac quirk, need to declare which shell to use
+
 BINARY_NAME=semver-order
 
 # todo add check to verify sbot is installed
@@ -18,10 +20,5 @@ release.patch:
 
 release.minor:
 	sbot release version -m minor
-	sbot push version
-	sbot get version
-
-release.major:
-	sbot release version -m major
 	sbot push version
 	sbot get version

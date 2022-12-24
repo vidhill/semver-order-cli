@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -19,19 +20,29 @@ func main() {
 		os.Exit(2)
 	}
 
-	raw, err := parseStdinJSON(os.Stdin)
+	s, err := sortStdIn(os.Stdin, true)
 
 	if err != nil {
-		logger.Info("The input is not in the expect structure, input should be a JSON array of strings")
+		logger.Info("Error:", err.Error())
+		os.Exit(2)
 		return
+	}
+
+	logger.Info(s)
+
+}
+
+func sortStdIn(r io.Reader, pretty bool) (string, error) {
+	raw, err := parseStdinJSON(r)
+
+	if err != nil {
+		return "", errors.New("the input is not in the expected structure, input should be a JSON array of strings")
 	}
 
 	vs, invalid, err := parseVersions(raw)
 
 	if err != nil {
-		logger.Infof("Error: %v\n", err)
-		os.Exit(2)
-		return
+		return "", err
 	}
 
 	sort.Sort(semver.Collection(vs))
@@ -41,25 +52,17 @@ func main() {
 	// append the invalid tag names to the end
 	ordered = append(ordered, invalid...)
 
-	json := convertToJSON(ordered)
+	json := convertToJSON(ordered, pretty)
 
-	logger.Info(json)
-
+	return json, nil
 }
 
 func parseStdinJSON(r io.Reader) ([]string, error) {
 	record := []string{}
 
-	dec := json.NewDecoder(r)
-	for {
-		err := dec.Decode(&record)
-		if err == io.EOF {
-			return record, nil
-		}
-		if err != nil {
-			return []string{}, err
-		}
-	}
+	err := json.NewDecoder(r).Decode(&record)
+
+	return record, err
 }
 
 func parseVersions(s []string) ([]*semver.Version, []string, error) {
@@ -90,10 +93,18 @@ func getOriginalNames(vs []*semver.Version) []string {
 	return s
 }
 
-func convertToJSON(s []string) string {
-	b, _ := json.MarshalIndent(s, "", "\t")
-
+func convertToJSON(s []string, pretty bool) string {
+	b := marshallIgnoreError(s, pretty)
 	return string(b)
+}
+
+func marshallIgnoreError(i interface{}, pretty bool) []byte {
+	if pretty {
+		b, _ := json.MarshalIndent(i, "", "\t")
+		return b
+	}
+	b, _ := json.Marshal(i)
+	return b
 }
 
 func checkIfEmptyStdin(f *os.File) bool {
