@@ -1,3 +1,5 @@
+SHELL := /bin/bash # mac quirk, need to declare which shell to use
+
 BINARY_NAME=semver-order
 
 # todo add check to verify sbot is installed
