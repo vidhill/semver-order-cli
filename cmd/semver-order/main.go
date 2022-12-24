@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -19,19 +20,29 @@ func main() {
 		os.Exit(2)
 	}
 
-	raw, err := parseStdinJSON(os.Stdin)
+	s, err := sortStdIn(os.Stdin, true)
 
 	if err != nil {
-		logger.Info("The input is not in the expected structure, input should be a JSON array of strings")
+		logger.Info("Error:", err.Error())
+		os.Exit(2)
 		return
+	}
+
+	logger.Info(s)
+
+}
+
+func sortStdIn(r io.Reader, pretty bool) (string, error) {
+	raw, err := parseStdinJSON(r)
+
+	if err != nil {
+		return "", errors.New("the input is not in the expected structure, input should be a JSON array of strings")
 	}
 
 	vs, invalid, err := parseVersions(raw)
 
 	if err != nil {
-		logger.Infof("Error: %v\n", err)
-		os.Exit(2)
-		return
+		return "", err
 	}
 
 	sort.Sort(semver.Collection(vs))
@@ -41,10 +52,9 @@ func main() {
 	// append the invalid tag names to the end
 	ordered = append(ordered, invalid...)
 
-	json := convertToJSON(ordered, true)
+	json := convertToJSON(ordered, pretty)
 
-	logger.Info(json)
-
+	return json, nil
 }
 
 func parseStdinJSON(r io.Reader) ([]string, error) {
