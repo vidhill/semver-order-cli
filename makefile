@@ -22,8 +22,3 @@ release.minor:
 	sbot release version -m minor
 	sbot push version
 	sbot get version
-
-release.major:
-	sbot release version -m major
-	sbot push version
-	sbot get version
