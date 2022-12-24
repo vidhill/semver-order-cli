@@ -50,16 +50,9 @@ func main() {
 func parseStdinJSON(r io.Reader) ([]string, error) {
 	record := []string{}
 
-	dec := json.NewDecoder(r)
-	for {
-		err := dec.Decode(&record)
-		if err == io.EOF {
-			return record, nil
-		}
-		if err != nil {
-			return []string{}, err
-		}
-	}
+	err := json.NewDecoder(r).Decode(&record)
+
+	return record, err
 }
 
 func parseVersions(s []string) ([]*semver.Version, []string, error) {
