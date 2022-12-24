@@ -13,7 +13,7 @@ func TestParseStdinJSON(t *testing.T) {
 		r := strings.NewReader("")
 		record, err := parseStdinJSON(r)
 
-		assert.Nil(t, err)
+		assert.Error(t, err)
 		assert.Len(t, record, 0)
 	})
 
@@ -21,7 +21,7 @@ func TestParseStdinJSON(t *testing.T) {
 		r := strings.NewReader(`["A","B"]`)
 		record, err := parseStdinJSON(r)
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		assert.Len(t, record, 2)
 	})
 
@@ -29,7 +29,7 @@ func TestParseStdinJSON(t *testing.T) {
 		r := strings.NewReader(`["A",1]`)
 		_, err := parseStdinJSON(r)
 
-		assert.NotNil(t, err)
+		assert.Error(t, err)
 	})
 
 }
