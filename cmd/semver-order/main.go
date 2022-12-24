@@ -22,7 +22,7 @@ func main() {
 	raw, err := parseStdinJSON(os.Stdin)
 
 	if err != nil {
-		logger.Info("The input is not in the expect structure, input should be a JSON array of strings")
+		logger.Info("The input is not in the expected structure, input should be a JSON array of strings")
 		return
 	}
 
